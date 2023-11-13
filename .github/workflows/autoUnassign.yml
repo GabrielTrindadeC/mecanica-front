@@ -1,25 +1,23 @@
-name: Auto-unassign stale issues
+name: Mark stale issues and pull requests
 
 on:
   schedule:
-    - cron: '* * * * *'  # Executa a cada minuto para fins de teste
+    - cron: '15 5 * * *'
 
 jobs:
-  auto-unassign-stale-issues:
+  stale:
+
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
     steps:
-    - name: Check for stale issues
-      run: |
-        # Calcula a data há um minuto a partir de agora
-        last_minute=$(date --date="1 minute ago" +"%Y-%m-%dT%H:%M:%SZ")
-        
-        # Obtém a lista de issues abertas que não foram atualizadas desde o último minuto
-        stale_issues=$(curl -s -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/issues?state=open&since=$last_minute" | jq -r '.[] | select(.assignees | length > 0) | .number')
-        
-        # Remove o assign das issues identificadas como estalecidas
-        for issue_number in $stale_issues; do
-          echo "Removing assignee from issue #$issue_number..."
-          curl -X DELETE -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/assignees/${{ github.actor }}"
-        done
+      - uses: actions/stale@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'Stale issue message'
+          stale-pr-message: 'Stale pull request message'
+          stale-issue-label: 'no-issue-activity'
+          stale-pr-label: 'no-pr-activity'
+          days-before-stale: 7
