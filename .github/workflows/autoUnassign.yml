@@ -1,0 +1,25 @@
+name: Auto-unassign stale issues
+
+on:
+  schedule:
+    - cron: '* * * * *'  # Executa diariamente à meia-noite
+
+jobs:
+  auto-unassign-stale-issues:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check for stale issues
+      run: |
+        # Calcula a data há uma semana a partir de hoje
+        last_week=$(date --date="1 week ago" +"%Y-%m-%dT%H:%M:%SZ")
+        
+        # Obtém a lista de issues abertas que não foram atualizadas desde a última semana
+        stale_issues=$(curl -s -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/issues?state=open&since=$last_week" | jq -r '.[] | select(.assignees | length > 0) | .number')
+        
+        # Remove o assign das issues identificadas como estalecidas
+        for issue_number in $stale_issues; do
+          echo "Removing assignee from issue #$issue_number..."
+          curl -X DELETE -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/assignees/${{ github.actor }}"
+        done
