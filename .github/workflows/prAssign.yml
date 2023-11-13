@@ -1,20 +1,18 @@
-name: 'Issue Link Comment (with resolve-word)'
+name: 'Issue Links'
+
 on:
   pull_request:
     types: [opened]
 
 jobs:
-  issue-link:
+  issue-links:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - name: issue link comment
-        uses: ./
+      - name: Add Issue Links
+        uses: tkt-actions/add-issue-links@v1.8.1
         with:
-          repo-token: '${{ secrets.PERSONAL_ACCESS_TOKEN }}'
-          branch-prefix: '^'
-          resolve: 'true'
-          resolve-word: 'release:'
-          link-style: 'comment'
+          repo-token: '${{ secrets.GITHUB_TOKEN }}' # required
+          branch-prefix: '^' # required
+      
