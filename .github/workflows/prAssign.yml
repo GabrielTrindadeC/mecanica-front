@@ -1,16 +1,20 @@
-name: 'Issue Links'
+name: 'Issue Link Comment (with resolve-word)'
 on:
   pull_request:
     types: [opened]
 
 jobs:
-  issue-links:
+  issue-link:
     runs-on: ubuntu-latest
-    # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
     permissions:
       pull-requests: write
     steps:
-      - uses: tkt-actions/add-issue-links@v1.8.1
+      - uses: actions/checkout@v4
+      - name: issue link comment
+        uses: ./
         with:
-          repo-token: '${{ secrets.PERSONAL_ACCESS_TOKEN }}' # required
-          branch-prefix: 'issue-' # required
+          repo-token: '${{ secrets.PERSONAL_ACCESS_TOKEN }}'
+          branch-prefix: '^'
+          resolve: 'true'
+          resolve-word: 'release:'
+          link-style: 'comment'
