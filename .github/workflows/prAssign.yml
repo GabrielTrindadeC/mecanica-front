@@ -13,4 +13,4 @@ jobs:
       - uses: tkt-actions/add-issue-links@v1.8.1
         with:
           repo-token: '${{ secrets.PERSONAL_ACCESS_TOKEN }}' # required
-          branch-prefix: '.*' # required
+          branch-prefix: 'issue-' # required
